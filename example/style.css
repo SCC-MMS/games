@@ -1,0 +1,16 @@
+.box {
+    width: 128px;
+    height: 128px;
+    background-color: red;
+    border: 1px solid black;
+}
+
+body {
+    display: flex; /* make body a flexbox */
+    justify-content: center; /* move things left and right */
+    align-items: center; /* move things up and down */
+    height: 100vh; /* make the flexbox as high as your screen */
+    border: 3px solid navy;
+    gap: 100px; /* add space between items */
+    flex-direction: column;
+}
