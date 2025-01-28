@@ -1,16 +1,16 @@
-.box {
-    width: 128px;
-    height: 128px;
+.square {
+    height: 200px;
+    width: 200px;
     background-color: red;
-    border: 1px solid black;
+    border: 5px brown solid;
 }
 
-body {
-    display: flex; /* make body a flexbox */
-    justify-content: center; /* move things left and right */
-    align-items: center; /* move things up and down */
-    height: 100vh; /* make the flexbox as high as your screen */
-    border: 3px solid navy;
-    gap: 100px; /* add space between items */
-    flex-direction: column;
+.boxes {
+    display: flex; /* tell css this is a flexbox */
+    justify-content: start; /* move the square left or right (options are start, center, end) */
+    align-items: start; /* move the square top to bottom */
+    gap: 40px; /* space between the squares */
+    /* flex-direction: column; move things top to bottom instead of left to right */
+    /* when you use flex-direcion, justify content and align items swap */
+    /* height: 100%; */
 }

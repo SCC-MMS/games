@@ -1,0 +1,14 @@
+#square {
+    width: 200px;
+    height: 200px;
+    background-color: red;
+    border: 5px solid brown;
+}
+
+.boxes {
+    display: flex:
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    flex-direction: column;
+}
