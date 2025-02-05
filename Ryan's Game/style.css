@@ -6,9 +6,11 @@
 }
 
 .boxes {
-    display: flex:
-    justify-content: center;
-    align-items: center;
-    gap: 40px;
-    flex-direction: column;
+    display: flex; /* tell css this is a flexbox */
+    justify-content: start; /* move the square left or right (options are start, center, end) */
+    align-items: start; /* move the square top to bottom */
+    gap: 40px; /* space between the squares */
+    /* flex-direction: column; move things top to bottom instead of left to right */
+    /* when you use flex-direcion, justify content and align items swap */
+    /* height: 100%; */
 }

@@ -1,12 +1,215 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <title>[Name]'s Game</title>
-        <link href="style.css" rel="stylesheet" />
-        <script src="https://console.shuchir.dev/inject.js"></script>
-        <script src="script.js"></script>
-    </head>
-    <body>
-        <!-- All HTML goes here -->
-    </body>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flappy Bird</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #70c5ce;
+        }
+        canvas {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+
+<canvas id="gameCanvas"></canvas>
+
+<script>
+// Set up canvas and context
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+// Resize canvas to fit the screen
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+// Game variables
+let birdY = canvas.height / 2;
+let birdVelocity = 0;
+let gravity = 0.5;  // Lower gravity for a smoother fall
+let lift = -8;  // Smaller lift value for smoother jump
+let birdWidth = 20; // Initial width
+let birdHeight = 20; // Initial height
+let birdX = 50;
+
+let pipeWidth = 50; // Initial pipe width
+let pipeGap = 60;  // The minimum gap between pipes
+let pipeSpeed = 8; // Increased pipe speed to make the game more challenging
+let score = 0;
+
+// Scaling factor based on screen size
+let scaleFactor = canvas.width / 320; // Scale everything to the width of the screen (320 is the base width)
+
+// Scale game elements according to the screen size
+birdWidth *= scaleFactor;
+birdHeight *= scaleFactor;
+pipeWidth = Math.max(30, pipeWidth * scaleFactor); // Make pipes narrower (set a minimum pipe width)
+pipeGap *= scaleFactor;
+
+let pipes = [];
+const pipeInterval = 200 * scaleFactor;  // Fixed distance between pipes
+
+// Control the bird with touch or mouse click
+canvas.addEventListener('touchstart', (event) => {
+    event.preventDefault(); // Prevent default touch actions
+    birdVelocity = lift;
+});
+
+canvas.addEventListener('mousedown', (event) => {
+    birdVelocity = lift;
+});
+
+// Pipe logic: Fixed spacing
+function generatePipe() {
+    // Ensure enough space for the bird to pass through by making the gap big enough
+    const minPipeHeight = pipeGap + birdHeight;
+    const pipeHeight = Math.floor(Math.random() * (canvas.height - pipeGap - birdHeight)) + birdHeight;
+
+    pipes.push({ x: canvas.width, top: pipeHeight, bottom: pipeHeight + pipeGap });
+}
+
+// Draw bird
+function drawBird() {
+    birdVelocity += gravity;
+    birdY += birdVelocity;
+
+    // Apply maximum upward velocity to prevent very high jumps
+    if (birdVelocity < lift) {
+        birdVelocity = lift;
+    }
+
+    // Draw bird
+    ctx.fillStyle = 'yellow';
+    ctx.fillRect(birdX, birdY, birdWidth, birdHeight);
+
+    // Bird collision with ground or ceiling
+    if (birdY + birdHeight > canvas.height || birdY < 0) {
+        resetGame();
+    }
+}
+
+// Draw pipes
+function drawPipes() {
+    pipes.forEach((pipe, index) => {
+        // Move pipes to the left
+        pipe.x -= pipeSpeed;
+
+        // Draw pipes
+        ctx.fillStyle = 'green';
+        ctx.fillRect(pipe.x, 0, pipeWidth, pipe.top);
+        ctx.fillRect(pipe.x, pipe.bottom, pipeWidth, canvas.height - pipe.bottom);
+
+        // Remove pipes that have gone off-screen and increase score
+        if (pipe.x + pipeWidth < 0) {
+            pipes.splice(index, 1);
+            score++;
+        }
+
+        // Check for collisions with pipes
+        if (
+            birdX + birdWidth > pipe.x &&
+            birdX < pipe.x + pipeWidth &&
+            (birdY < pipe.top || birdY + birdHeight > pipe.bottom)
+        ) {
+            resetGame();
+        }
+    });
+}
+
+// Draw score
+function drawScore() {
+    ctx.fillStyle = 'black';
+    ctx.font = `${(24 * scaleFactor)}px Arial`; // Scale the score font size
+    ctx.fillText(`Score: ${score}`, 10 * scaleFactor, 30 * scaleFactor); // Scale position too
+}
+
+// Reset the game
+function resetGame() {
+    birdY = canvas.height / 2;
+    birdVelocity = 0;
+    pipes = [];
+    score = 0;
+}
+
+// Update the game
+function update() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    drawBird();
+    drawPipes();
+    drawScore();
+
+    // Generate new pipes at regular intervals
+    if (pipes.length === 0 || pipes[pipes.length - 1].x <= canvas.width - pipeInterval) {
+        generatePipe();
+    }
+
+    requestAnimationFrame(update);
+}
+// Variables for the jumpscare
+let jumpscareTriggered = false;
+const jumpscareImage = new Image();
+jumpscareImage.src = 'https://example.com/scary-image.png';  // Replace with your scary image URL
+const jumpscareSound = new Audio('https://www.soundjay.com/button/beep-07.wav'); // Replace with your scary sound URL
+
+// Flash the screen when the score reaches 15
+function triggerJumpscare() {
+    // Flash the background color
+    let flashCount = 0;
+    const flashInterval = setInterval(() => {
+        if (flashCount % 2 === 0) {
+            // Flash to a spooky color (red for example)
+            document.body.style.backgroundColor = 'red';
+        } else {
+            // Flash back to the original background color
+            document.body.style.backgroundColor = '#70c5ce';  // Original background color
+        }
+        flashCount++;
+
+        // Stop flashing after a few flashes (e.g., 6 flashes)
+        if (flashCount >= 6) {
+            clearInterval(flashInterval);
+            document.body.style.backgroundColor = '#70c5ce';  // Restore original background color
+        }
+    }, 100);  // Flash interval in milliseconds
+
+    // Play jumpscare sound
+    jumpscareSound.play();
+
+    // Show the scary image
+    ctx.drawImage(jumpscareImage, canvas.width / 4, canvas.height / 4, canvas.width / 2, canvas.height / 2); // Adjust size and position of the image
+}
+
+// Update the game loop
+function update() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    drawBird();
+    drawPipes();
+    drawScore();
+
+    // Trigger jumpscare when the score reaches 15
+    if (score === 15 && !jumpscareTriggered) {
+        jumpscareTriggered = true;
+        triggerJumpscare();
+    }
+
+    // Generate new pipes at regular intervals
+    if (pipes.length === 0 || pipes[pipes.length - 1].x <= canvas.width - pipeInterval) {
+        generatePipe();
+    }
+
+    requestAnimationFrame(update);
+}
+
+// Start the game
+update();
+</script>
+
+</body>
 </html>
